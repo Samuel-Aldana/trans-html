@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransiKids - Chat</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  </head>
+  <body class="pagina-chat">
+    <main class="contenedor-chat">
+      <header class="barra-superior-chat">
+        <a class="boton-icono" href="inicio.html" aria-label="Volver">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1>Asistente TransiKids</h1>
+          <span><i class="fa-solid fa-circle"></i> En linea</span>
+        </div>
+      </header>
+
+      <section class="panel-chat">
+        <div class="mensajes-chat" id="mensajes-chat">
+          <div class="mensaje-chat mensaje-bot">
+            <p>Hola, Brayan. Soy tu asistente de TransiKids. En que puedo ayudarte hoy?</p>
+            <span class="hora-mensaje">07:15 AM</span>
+          </div>
+        </div>
+
+        <div class="indicador-escribiendo" id="indicador-escribiendo" hidden>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="respuestas-rapidas">
+          <button class="boton-respuesta-rapida" type="button" data-respuesta="A que hora llega la ruta?">Hora de llegada</button>
+          <button class="boton-respuesta-rapida" type="button" data-respuesta="Quien es el conductor?">Conductor</button>
+          <button class="boton-respuesta-rapida" type="button" data-respuesta="Reportar una novedad">Novedad</button>
+          <button class="boton-respuesta-rapida" id="boton-preguntas" type="button">Preguntas</button>
+        </div>
+
+        <div class="panel-preguntas" id="panel-preguntas" hidden>
+          <div class="encabezado-preguntas">
+            <strong>Selecciona una pregunta frecuente</strong>
+            <button id="cerrar-preguntas" type="button" aria-label="Cerrar">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <div class="lista-preguntas">
+            <div class="grupo-preguntas">
+              <span>Ruta y tiempos</span>
+              <div class="carrusel-preguntas">
+                <button class="boton-pregunta" type="button" data-pregunta="A que hora llega la ruta al colegio?">A que hora llega la ruta al colegio?</button>
+                <button class="boton-pregunta" type="button" data-pregunta="Puedo ver la ubicacion en tiempo real?">Puedo ver la ubicacion en tiempo real?</button>
+              </div>
+            </div>
+
+            <div class="grupo-preguntas">
+              <span>Seguridad</span>
+              <div class="carrusel-preguntas">
+                <button class="boton-pregunta" type="button" data-pregunta="Quien es el conductor asignado?">Quien es el conductor asignado?</button>
+                <button class="boton-pregunta" type="button" data-pregunta="A quien llamo en caso de emergencia?">A quien llamo en caso de emergencia?</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form class="formulario-chat" id="formulario-chat">
+          <input id="entrada-chat" type="text" placeholder="Escribe tu mensaje o selecciona una pregunta..." autocomplete="off">
+          <button class="boton-enviar-chat" type="submit" aria-label="Enviar">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <script src="../js/funciones.js"></script>
+  </body>
+</html>

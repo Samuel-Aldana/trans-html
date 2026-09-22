@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransiKids - Registro</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+  </head>
+  <body class="pagina-registro">
+    <main class="contenedor-registro">
+      <header class="encabezado-registro">
+        <img src="../img/registro.jpeg" alt="Ciudad con bus escolar">
+      </header>
+
+      <form class="formulario-registro" id="formulario-registro">
+        <div class="campo-registro">
+          <label for="nombre-registro">Nombre completo</label>
+          <input type="text" id="nombre-registro" name="nombre" placeholder="Nombre">
+        </div>
+
+        <div class="campo-registro">
+          <label for="correo-registro">Correo electronico</label>
+          <input type="email" id="correo-registro" name="correo" placeholder="example@xxx.com">
+        </div>
+
+        <div class="campo-registro">
+          <label for="telefono-registro">Numero de telefono</label>
+          <input type="text" id="telefono-registro" name="telefono" placeholder="+57 0000000000">
+        </div>
+
+        <div class="grupo-contrasenas-registro">
+          <div class="campo-registro">
+            <label for="contrasena-registro">Contrasena</label>
+            <input type="password" id="contrasena-registro" name="contrasena">
+          </div>
+
+          <div class="campo-registro">
+            <label for="confirmar-registro">Confirmar</label>
+            <input type="password" id="confirmar-registro" name="confirmar">
+          </div>
+        </div>
+
+        <label class="terminos-registro">
+          <input type="checkbox" id="terminos-registro">
+          <span>Acepto los Terminos y Condiciones y la politica de privacidad de TransiKids.</span>
+        </label>
+
+        <p class="mensaje-registro" id="mensaje-registro"></p>
+
+        <button class="boton-crear-cuenta" type="submit">Crear cuenta</button>
+      </form>
+
+      <footer class="pie-registro">
+        ¿Ya tienes una cuenta?
+        <a href="login.html">Inicia sesion</a>
+      </footer>
+    </main>
+
+    <script src="../js/funciones.js"></script>
+  </body>
+</html>

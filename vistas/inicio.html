@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransiKids - Inicio</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  </head>
+  <body class="pagina-app pagina-inicio">
+    <main class="contenedor-app">
+      <header class="barra-superior">
+        <a class="boton-icono" href="login.html" aria-label="Volver">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h1 class="titulo-pagina">Inicio</h1>
+      </header>
+
+      <section class="bienvenida-inicio">
+        <h2>Buenos dias, Brayan Teran <span>👋</span></h2>
+        <p>Todo esta funcionando correctamente</p>
+      </section>
+
+      <section class="tarjeta-ruta-inicio">
+        <div class="encabezado-ruta-inicio">
+          <div>
+            <h3>Ruta TKS-001</h3>
+            <p><i class="fa-regular fa-user"></i> Conductor: Mario Jimenez</p>
+          </div>
+          <span class="estado-ruta-inicio">EN CAMINO</span>
+        </div>
+
+        <div class="contenedor-barra-progreso">
+          <div class="barra-progreso-inicio"></div>
+        </div>
+
+        <div class="datos-tiempo-inicio">
+          <span>LLEGADA EST.</span>
+          <strong>07:17 AM</strong>
+          <p class="contador-ruta-inicio">Faltan 01:13</p>
+        </div>
+      </section>
+
+      <section class="acciones-rapidas">
+        <a class="tarjeta-accion" href="ruta.html">
+          <span class="icono-accion icono-azul"><i class="fa-solid fa-map-location-dot"></i></span>
+          <strong>Ver rutas</strong>
+        </a>
+
+        <a class="tarjeta-accion" href="chat.html">
+          <span class="icono-accion icono-verde"><i class="fa-regular fa-comment-dots"></i></span>
+          <strong>Contactar</strong>
+          <small>Chat con conductor</small>
+        </a>
+
+        <a class="tarjeta-accion" href="hijos.html">
+          <span class="icono-accion icono-amarillo"><i class="fa-solid fa-shield-halved"></i></span>
+          <strong>Seguridad</strong>
+          <small>Chequeo diario</small>
+        </a>
+
+        <a class="tarjeta-accion" href="perfil.html">
+          <span class="icono-accion icono-morado"><i class="fa-solid fa-clock-rotate-left"></i></span>
+          <strong>Historial</strong>
+          <small>Viajes pasados</small>
+        </a>
+      </section>
+
+      <section class="alerta-inicio">
+        <div>
+          <span class="punto-alerta"></span>
+          <p class="texto-alerta-inicio">Llegada de Mateo Perez a la institucion</p>
+        </div>
+        <i class="fa-solid fa-chevron-right"></i>
+      </section>
+    </main>
+
+    <nav class="barra-navegacion">
+      <a class="item-navegacion activo" href="inicio.html">
+        <i class="fa-solid fa-house"></i>
+        <span>Inicio</span>
+      </a>
+      <a class="item-navegacion" href="ruta.html">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Ruta</span>
+      </a>
+      <a class="item-navegacion" href="hijos.html">
+        <i class="fa-regular fa-face-smile"></i>
+        <span>Hijos</span>
+      </a>
+      <a class="item-navegacion" href="perfil.html">
+        <i class="fa-regular fa-user"></i>
+        <span>Perfil</span>
+      </a>
+    </nav>
+
+    <a class="boton-chat-flotante" href="chat.html" aria-label="Abrir chat">
+      <i class="fa-solid fa-robot"></i>
+    </a>
+
+    <script src="../js/funciones.js"></script>
+  </body>
+</html>

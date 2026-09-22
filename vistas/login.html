@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransiKids - Iniciar sesi&oacute;n</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+  </head>
+  <body class="pagina-iniciar-sesion">
+    <main class="contenedor-principal">
+      <section class="seccion-logo">
+        <img class="logo-transikids" src="../img/LogoNombre.jpeg" alt="Logo TransiKids">
+      </section>
+
+      <section class="seccion-bienvenida">
+        <h1 class="titulo-bienvenida">Bienvenido</h1>
+        <p class="texto-bienvenida">Acceso seguro al recorrido de su hijo</p>
+      </section>
+
+      <form class="formulario-inicio-sesion" action="#" method="post">
+        <div class="campo-formulario">
+          <label class="etiqueta-campo" for="cedula">C&eacute;dula de ciudadan&iacute;a</label>
+          <div class="contenedor-entrada">
+            <img class="icono-campo" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/icons/person.svg" alt="">
+            <input class="entrada-campo" type="text" id="cedula" name="cedula" placeholder="Ingrese su usuario">
+          </div>
+        </div>
+
+        <div class="campo-formulario">
+          <label class="etiqueta-campo" for="contrasena">Contrase&ntilde;a</label>
+          <div class="contenedor-entrada">
+            <img class="icono-campo" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/icons/lock-fill.svg" alt="">
+            <input class="entrada-campo" type="password" id="contrasena" name="contrasena" placeholder="Ingrese su contrase&ntilde;a">
+            <button class="boton-mostrar-contrasena" type="button" aria-label="Mostrar contrase&ntilde;a">
+              <img class="icono-ojo" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/icons/eye-slash-fill.svg" alt="">
+            </button>
+          </div>
+        </div>
+
+        <div class="opciones-formulario">
+          <label class="opcion-recordarme">
+            <input class="casilla-recordarme" type="checkbox" name="recordarme">
+            Recordarme
+          </label>
+
+          <a class="enlace-recuperar-contrasena" href="#">Olvid&eacute; mi contrase&ntilde;a</a>
+        </div>
+
+        <button class="boton-iniciar-sesion" type="submit">Iniciar sesi&oacute;n</button>
+      </form>
+
+      <section class="seccion-accesos-externos">
+        <a class="enlace-google" href="#">
+          <img class="icono-acceso" src="https://cdn.simpleicons.org/google" alt="">
+          Google
+        </a>
+        <a class="enlace-apple" href="#">
+          <img class="icono-acceso" src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/icons/apple.svg" alt="">
+          Apple
+        </a>
+      </section>
+
+      <p class="mensaje-formulario" id="mensaje-formulario"></p>
+    </main>
+    <script src="../js/funciones.js"></script>
+  </body>
+</html>
