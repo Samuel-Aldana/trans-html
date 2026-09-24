@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TransiKids - Administracion</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  </head>
+  <body class="pagina-app pagina-admin">
+    <main class="contenedor-app" id="panel-admin">
+      <header class="barra-superior barra-admin">
+        <a class="boton-icono" href="login.html" aria-label="Cerrar sesion" data-cerrar-sesion>
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h1 class="titulo-pagina">Panel admin</h1>
+      </header>
+
+      <section class="resumen-admin">
+        <article>
+          <span>Hijos</span>
+          <strong id="total-hijos-admin">0</strong>
+        </article>
+        <article>
+          <span>Rutas</span>
+          <strong id="total-rutas-admin">0</strong>
+        </article>
+        <article>
+          <span>En camino</span>
+          <strong id="total-en-camino-admin">0</strong>
+        </article>
+      </section>
+
+      <section class="panel-admin-grid">
+        <form class="formulario-admin" id="formulario-admin">
+          <input id="admin-id-hijo" type="hidden">
+          <h2>Gestionar estudiante y ruta</h2>
+
+          <label>
+            Nombre del estudiante
+            <input id="admin-nombre" type="text" placeholder="Nombre completo">
+          </label>
+
+          <label>
+            Grado
+            <input id="admin-grado" type="text" placeholder="Ej: 3 primaria">
+          </label>
+
+          <label>
+            Estado
+            <select id="admin-estado">
+              <option value="PENDIENTE">PENDIENTE</option>
+              <option value="EN CAMINO">EN CAMINO</option>
+              <option value="EN CLASE">EN CLASE</option>
+              <option value="RETRASADA">RETRASADA</option>
+              <option value="FINALIZADA">FINALIZADA</option>
+              <option value="ENTREGADO">ENTREGADO</option>
+            </select>
+          </label>
+
+          <label>
+            Codigo de ruta
+            <input id="admin-codigo-ruta" type="text" placeholder="TKS-006">
+          </label>
+
+          <label>
+            Colegio
+            <input id="admin-colegio" type="text" placeholder="Colegio">
+          </label>
+
+          <label>
+            Conductor
+            <select id="admin-conductor"></select>
+          </label>
+
+          <div class="grupo-admin-doble">
+            <label>
+              Recogida
+              <input id="admin-recogida" type="text" placeholder="7:10 AM">
+            </label>
+            <label>
+              Llegada
+              <input id="admin-llegada" type="text" placeholder="07:40 AM">
+            </label>
+          </div>
+
+          <div class="grupo-admin-doble">
+            <label>
+              Progreso
+              <input id="admin-progreso" type="number" min="0" max="100" placeholder="0">
+            </label>
+            <label>
+              Tiempo restante
+              <input id="admin-tiempo" type="number" min="0" placeholder="120">
+            </label>
+          </div>
+
+          <div class="acciones-admin-formulario">
+            <button class="boton-primario" type="submit">Guardar</button>
+            <button class="boton-secundario" id="boton-nuevo-admin" type="button">Nuevo</button>
+          </div>
+
+          <p class="mensaje-admin" id="mensaje-admin"></p>
+        </form>
+
+        <section class="listado-admin">
+          <div class="encabezado-seccion-app">
+            <h2>Registros</h2>
+            <input id="buscar-admin" type="search" placeholder="Buscar">
+          </div>
+
+          <div class="tabla-admin" id="tabla-admin"></div>
+
+          <button class="boton-reiniciar-admin" id="boton-reiniciar-admin" type="button">
+            Restaurar datos de prueba
+          </button>
+        </section>
+      </section>
+    </main>
+
+    <script src="js/datos.js"></script>
+    <script src="js/funciones.js"></script>
+  </body>
+</html>

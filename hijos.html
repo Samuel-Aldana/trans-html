@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TransiKids - Hijos</title>
-    <link rel="stylesheet" href="../css/estilos.css">
+    <link rel="stylesheet" href="css/estilos.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   </head>
   <body class="pagina-app pagina-hijos">
@@ -16,15 +16,10 @@
         <h1 class="titulo-pagina">Hijos</h1>
       </header>
 
-      <p class="subtitulo-pagina">Monitorea a tus hijos en tiempo real</p>
+      <p class="subtitulo-pagina">Monitorea a tus hijos en tiempo real. Los datos solo pueden modificarse desde administracion.</p>
 
       <section class="panel-gestion-hijos">
         <input id="buscar-hijo" type="search" placeholder="Buscar hijo">
-        <form id="formulario-hijo" class="formulario-hijo">
-          <input id="nombre-nuevo-hijo" type="text" placeholder="Nombre">
-          <input id="grado-nuevo-hijo" type="text" placeholder="Grado">
-          <button type="submit">Agregar</button>
-        </form>
       </section>
 
       <section class="lista-hijos" id="lista-hijos">
@@ -72,8 +67,6 @@
 
         <div class="acciones-hijo">
           <a class="boton-secundario" href="ruta.html">Ver ruta</a>
-          <button class="boton-primario" id="boton-entrega" type="button">Entregar nino</button>
-          <button class="boton-peligro" id="boton-eliminar-hijo" type="button">Eliminar</button>
         </div>
 
         <article class="tarjeta-seguridad">
@@ -97,7 +90,7 @@
       <i class="fa-solid fa-robot"></i>
     </a>
 
-    <script src="../js/datos.js"></script>
-    <script src="../js/funciones.js"></script>
+    <script src="js/datos.js"></script>
+    <script src="js/funciones.js"></script>
   </body>
 </html>

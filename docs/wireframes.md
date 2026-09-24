@@ -24,6 +24,17 @@ Estos wireframes describen la estructura base de cada pantalla. El detalle visua
 [Boton Google] [Boton Apple]
 ```
 
+## Admin
+
+```text
+[Titulo panel admin]
+[Resumen: hijos, rutas, rutas en camino]
+[Formulario crear/editar estudiante y ruta]
+[Buscador de registros]
+[Lista de estudiantes con editar/eliminar]
+[Boton restaurar datos de prueba]
+```
+
 ## Inicio despues del login
 
 ```text
@@ -56,10 +67,9 @@ Estos wireframes describen la estructura base de cada pantalla. El detalle visua
 ```text
 [Titulo]
 [Buscador hijo]
-[Formulario agregar hijo]
 [Lista horizontal de hijos]
 [Tarjeta hijo seleccionado]
-[Acciones: ver ruta, entregar, eliminar]
+[Accion: ver ruta]
 [Protocolo de seguridad]
 [Navegacion inferior]
 [Boton chatbot]
@@ -71,7 +81,7 @@ Estos wireframes describen la estructura base de cada pantalla. El detalle visua
 [Titulo]
 [Avatar e informacion principal]
 [Lista de datos del acudiente]
-[Formulario editar datos]
+[Aviso solo lectura]
 [Cerrar sesion]
 [Navegacion inferior]
 [Boton chatbot]

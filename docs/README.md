@@ -4,21 +4,22 @@ TransiKids es un prototipo web para que un acudiente pueda consultar el estado d
 
 ## Flujo principal
 
-1. El usuario entra por `vistas/inicioPrincipal.html`.
-2. Puede iniciar sesion desde `vistas/login.html` o registrarse en `vistas/registro.html`.
+1. El usuario entra por `inicioPrincipal.html`.
+2. Puede iniciar sesion desde `login.html` o registrarse en `registro.html`.
 3. Despues del login navega entre cuatro vistas principales:
-   - `vistas/inicio.html`: resumen de ruta, accesos rapidos e historial.
-   - `vistas/ruta.html`: seguimiento de rutas y cambio entre estudiantes.
-   - `vistas/hijos.html`: consulta, busqueda, registro, entrega y eliminacion de hijos.
-   - `vistas/perfil.html`: consulta y edicion de datos del acudiente.
+   - `inicio.html`: resumen de ruta, accesos rapidos e historial.
+   - `ruta.html`: seguimiento de rutas y cambio entre estudiantes.
+   - `hijos.html`: consulta y busqueda de hijos.
+   - `perfil.html`: consulta de datos del acudiente.
 4. El chatbot esta disponible en las cuatro vistas principales mediante el boton flotante.
+5. El administrador entra desde `login.html` con usuario `12345` y contrasena `contraseña`, y se redirige a `admin.html`.
 
 ## Organizacion
 
-- `vistas/`: pantallas HTML del prototipo.
+- Archivos `.html` en la raiz: pantallas del prototipo.
 - `css/estilos.css`: estilos visuales compartidos.
 - `js/datos.js`: datos de prueba y persistencia con `localStorage`.
-- `js/funciones.js`: navegacion, validaciones, filtros, acciones CRUD y chatbot.
+- `js/funciones.js`: navegacion, validaciones, filtros, panel admin y chatbot.
 - `img/`: logo e imagenes usadas por las vistas.
 
 ## Datos de prueba
@@ -36,16 +37,17 @@ Los datos salen de arreglos y objetos definidos en `js/datos.js`:
 
 - Busqueda de historial por estudiante, ruta, estado o fecha.
 - Busqueda de hijos por nombre, grado o estado.
-- Agregar hijos desde la vista `Hijos`.
-- Marcar entrega de un hijo y actualizar su ruta como finalizada.
-- Eliminar hijos y sus rutas asociadas.
+- Acceso de padre a vistas de consulta.
+- Acceso de administrador con usuario `12345` y contrasena `contraseña`.
+- Agregar, editar y eliminar estudiantes/rutas desde `admin.html`.
+- Restaurar datos de prueba desde el panel admin.
 - Cambiar la ruta visible desde `Ruta`.
-- Editar datos del acudiente en `Perfil`.
+- Ver datos del acudiente en `Perfil` sin modificarlos.
 - Chatbot con respuestas rapidas y preguntas frecuentes en carrusel.
 
 ## Como probar
 
-Abre `vistas/inicioPrincipal.html` directamente en el navegador o ejecuta un servidor local desde la carpeta del proyecto:
+Abre `inicioPrincipal.html` directamente en el navegador o ejecuta un servidor local desde la carpeta del proyecto:
 
 ```bash
 python -m http.server 8000
@@ -54,5 +56,5 @@ python -m http.server 8000
 Luego visita:
 
 ```text
-http://localhost:8000/vistas/inicioPrincipal.html
+http://localhost:8000/inicioPrincipal.html
 ```

@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
+  iniciarCierreSesion();
   iniciarFormularioLogin();
   iniciarFormularioRegistro();
   iniciarVistaInicio();
   iniciarVistaHijos();
   iniciarVistaRuta();
   iniciarVistaPerfil();
+  iniciarPanelAdmin();
   iniciarVistaChat();
 });
 
@@ -28,6 +30,23 @@ function obtenerConductor(datos, ruta) {
 
 function obtenerHijo(datos, ruta) {
   return buscarPorId(datos.hijos, ruta.estudianteId) || datos.hijos[0];
+}
+
+function iniciarCierreSesion() {
+  document.querySelectorAll("[data-cerrar-sesion]").forEach(function (enlace) {
+    enlace.addEventListener("click", function () {
+      sessionStorage.removeItem("rolTransikids");
+    });
+  });
+}
+
+function escaparHtml(texto) {
+  return String(texto)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function iniciarFormularioLogin() {
@@ -64,16 +83,22 @@ function iniciarFormularioLogin() {
       return;
     }
 
+    const usuario = cedula.value.trim();
+    const clave = contrasena.value.trim();
+    const esAdmin = usuario === "12345" && clave === "contraseña";
+
     if (recordarme.checked) {
-      localStorage.setItem("cedulaTransikids", cedula.value.trim());
+      localStorage.setItem("cedulaTransikids", usuario);
     } else {
       localStorage.removeItem("cedulaTransikids");
     }
 
-    mensaje.textContent = "Ingreso correcto. Redirigiendo...";
+    localStorage.removeItem("rolTransikids");
+    sessionStorage.setItem("rolTransikids", esAdmin ? "admin" : "padre");
+    mensaje.textContent = esAdmin ? "Ingreso administrador. Redirigiendo..." : "Ingreso correcto. Redirigiendo...";
 
     setTimeout(function () {
-      window.location.href = "inicio.html";
+      window.location.href = esAdmin ? "admin.html" : "inicio.html";
     }, 700);
   });
 }
@@ -224,9 +249,6 @@ function iniciarVistaHijos() {
   let datos = obtenerDatos();
   let hijoSeleccionadoId = datos.hijos[0] ? datos.hijos[0].id : null;
   const buscador = document.getElementById("buscar-hijo");
-  const formulario = document.getElementById("formulario-hijo");
-  const botonEntrega = document.getElementById("boton-entrega");
-  const botonEliminar = document.getElementById("boton-eliminar-hijo");
 
   function renderizarLista() {
     const texto = buscador.value.toLowerCase();
@@ -294,78 +316,9 @@ function iniciarVistaHijos() {
     document.getElementById("barra-hijo").style.width = ruta.progreso + "%";
     document.getElementById("texto-llegada-hijo").textContent =
       hijo.estado === "FINALIZADA" ? hijo.nombre + " ya llego correctamente" : "Llegada de " + hijo.nombre + " a la institucion";
-    botonEntrega.textContent = hijo.estado === "ENTREGADO" || hijo.estado === "FINALIZADA" ? "Entregado" : "Entregar nino";
   }
 
   buscador.addEventListener("input", renderizarLista);
-
-  formulario.addEventListener("submit", function (evento) {
-    evento.preventDefault();
-    const nombre = document.getElementById("nombre-nuevo-hijo").value.trim();
-    const grado = document.getElementById("grado-nuevo-hijo").value.trim();
-    if (!nombre || !grado) return;
-
-    const idHijo = Date.now();
-    const idRuta = idHijo + 1;
-    datos.hijos.push({
-      id: idHijo,
-      inicial: nombre.charAt(0).toUpperCase(),
-      nombre,
-      grado,
-      estado: "PENDIENTE",
-      rutaId: idRuta,
-    });
-    datos.rutas.push({
-      id: idRuta,
-      codigo: "TKS-" + String(datos.rutas.length + 1).padStart(3, "0"),
-      estudianteId: idHijo,
-      conductorId: datos.conductores[0].id,
-      estado: "PENDIENTE",
-      recogida: "7:10 AM",
-      llegada: "07:40 AM",
-      progreso: 0,
-      tiempo: 120,
-      colegio: "Inem",
-    });
-
-    guardarDatos(datos);
-    hijoSeleccionadoId = idHijo;
-    formulario.reset();
-    renderizarLista();
-  });
-
-  botonEntrega.addEventListener("click", function () {
-    const hijo = buscarPorId(datos.hijos, hijoSeleccionadoId);
-    if (!hijo) return;
-    const ruta = buscarPorId(datos.rutas, hijo.rutaId);
-    hijo.estado = "ENTREGADO";
-    ruta.estado = "FINALIZADA";
-    ruta.progreso = 100;
-    ruta.tiempo = 0;
-    datos.historial.unshift({
-      id: Date.now(),
-      fecha: new Date().toISOString().slice(0, 10),
-      ruta: ruta.codigo,
-      estudiante: hijo.nombre,
-      estado: "Entregado",
-    });
-    guardarDatos(datos);
-    renderizarLista();
-  });
-
-  botonEliminar.addEventListener("click", function () {
-    const hijo = buscarPorId(datos.hijos, hijoSeleccionadoId);
-    if (!hijo) return;
-    datos.hijos = datos.hijos.filter(function (item) {
-      return item.id !== hijoSeleccionadoId;
-    });
-    datos.rutas = datos.rutas.filter(function (ruta) {
-      return ruta.estudianteId !== hijoSeleccionadoId;
-    });
-    guardarDatos(datos);
-    hijoSeleccionadoId = datos.hijos[0] ? datos.hijos[0].id : null;
-    renderizarLista();
-  });
 
   renderizarLista();
 }
@@ -432,7 +385,6 @@ function iniciarVistaPerfil() {
 
   const datos = obtenerDatos();
   const usuario = datos.usuario;
-  const formulario = document.getElementById("formulario-perfil");
 
   function renderizarPerfil() {
     document.getElementById("avatar-perfil").textContent = usuario.nombre.charAt(0).toUpperCase();
@@ -449,21 +401,238 @@ function iniciarVistaPerfil() {
         return '<article class="dato-perfil"><span>' + dato[0] + "</span><strong>" + dato[1] + "</strong></article>";
       })
       .join("");
-    document.getElementById("editar-nombre").value = usuario.nombre;
-    document.getElementById("editar-correo").value = usuario.correo;
-    document.getElementById("editar-telefono").value = usuario.telefono;
+  }
+
+  renderizarPerfil();
+}
+
+function iniciarPanelAdmin() {
+  const panel = document.getElementById("panel-admin");
+  if (!panel) return;
+
+  if (sessionStorage.getItem("rolTransikids") !== "admin") {
+    window.location.href = "login.html";
+    return;
+  }
+
+  let datos = obtenerDatos();
+  const formulario = document.getElementById("formulario-admin");
+  const tabla = document.getElementById("tabla-admin");
+  const buscador = document.getElementById("buscar-admin");
+  const mensaje = document.getElementById("mensaje-admin");
+  const botonNuevo = document.getElementById("boton-nuevo-admin");
+  const botonReiniciar = document.getElementById("boton-reiniciar-admin");
+  const campoId = document.getElementById("admin-id-hijo");
+  const campoNombre = document.getElementById("admin-nombre");
+  const campoGrado = document.getElementById("admin-grado");
+  const campoEstado = document.getElementById("admin-estado");
+  const campoCodigo = document.getElementById("admin-codigo-ruta");
+  const campoColegio = document.getElementById("admin-colegio");
+  const campoRecogida = document.getElementById("admin-recogida");
+  const campoLlegada = document.getElementById("admin-llegada");
+  const campoProgreso = document.getElementById("admin-progreso");
+  const campoTiempo = document.getElementById("admin-tiempo");
+  const campoConductor = document.getElementById("admin-conductor");
+
+  function renderizarOpcionesConductores() {
+    campoConductor.innerHTML = datos.conductores
+      .map(function (conductor) {
+        return '<option value="' + conductor.id + '">' + escaparHtml(conductor.nombre) + "</option>";
+      })
+      .join("");
+  }
+
+  function limpiarFormulario(textoMensaje) {
+    campoId.value = "";
+    formulario.reset();
+    campoEstado.value = "PENDIENTE";
+    campoCodigo.value = "TKS-" + String(datos.rutas.length + 1).padStart(3, "0");
+    campoColegio.value = "Inem";
+    campoRecogida.value = "7:10 AM";
+    campoLlegada.value = "07:40 AM";
+    campoProgreso.value = "0";
+    campoTiempo.value = "120";
+    if (datos.conductores[0]) {
+      campoConductor.value = datos.conductores[0].id;
+    }
+    mensaje.textContent = textoMensaje || "Listo para registrar un nuevo estudiante.";
+  }
+
+  function obtenerRutaPorHijo(hijo) {
+    return buscarPorId(datos.rutas, hijo.rutaId) || datos.rutas[0];
+  }
+
+  function renderizarTabla() {
+    const texto = buscador.value.toLowerCase();
+    const hijosFiltrados = datos.hijos.filter(function (hijo) {
+      const ruta = obtenerRutaPorHijo(hijo);
+      return (
+        hijo.nombre.toLowerCase().includes(texto) ||
+        hijo.grado.toLowerCase().includes(texto) ||
+        hijo.estado.toLowerCase().includes(texto) ||
+        ruta.codigo.toLowerCase().includes(texto)
+      );
+    });
+
+    document.getElementById("total-hijos-admin").textContent = datos.hijos.length;
+    document.getElementById("total-rutas-admin").textContent = datos.rutas.length;
+    document.getElementById("total-en-camino-admin").textContent = datos.rutas.filter(function (ruta) {
+      return ruta.estado === "EN CAMINO";
+    }).length;
+
+    if (!hijosFiltrados.length) {
+      tabla.innerHTML = '<p class="mensaje-vacio">No hay registros para mostrar.</p>';
+      return;
+    }
+
+    tabla.innerHTML = hijosFiltrados
+      .map(function (hijo) {
+        const ruta = obtenerRutaPorHijo(hijo);
+        const conductor = obtenerConductor(datos, ruta);
+        return (
+          '<article class="fila-admin">' +
+          '<div><strong>' +
+          escaparHtml(hijo.nombre) +
+          "</strong><span>" +
+          escaparHtml(hijo.grado) +
+          "</span></div>" +
+          '<div><strong>' +
+          escaparHtml(ruta.codigo) +
+          "</strong><span>" +
+          escaparHtml(ruta.colegio) +
+          "</span></div>" +
+          '<div><strong>' +
+          escaparHtml(hijo.estado) +
+          "</strong><span>" +
+          escaparHtml(conductor.nombre) +
+          "</span></div>" +
+          '<div class="acciones-admin-tabla">' +
+          '<button type="button" data-editar="' +
+          hijo.id +
+          '">Editar</button>' +
+          '<button class="boton-peligro-tabla" type="button" data-eliminar="' +
+          hijo.id +
+          '">Eliminar</button>' +
+          "</div></article>"
+        );
+      })
+      .join("");
+
+    tabla.querySelectorAll("[data-editar]").forEach(function (boton) {
+      boton.addEventListener("click", function () {
+        cargarRegistro(Number(boton.dataset.editar));
+      });
+    });
+
+    tabla.querySelectorAll("[data-eliminar]").forEach(function (boton) {
+      boton.addEventListener("click", function () {
+        eliminarRegistro(Number(boton.dataset.eliminar));
+      });
+    });
+  }
+
+  function cargarRegistro(idHijo) {
+    const hijo = buscarPorId(datos.hijos, idHijo);
+    if (!hijo) return;
+    const ruta = obtenerRutaPorHijo(hijo);
+    campoId.value = hijo.id;
+    campoNombre.value = hijo.nombre;
+    campoGrado.value = hijo.grado;
+    campoEstado.value = hijo.estado;
+    campoCodigo.value = ruta.codigo;
+    campoColegio.value = ruta.colegio;
+    campoRecogida.value = ruta.recogida;
+    campoLlegada.value = ruta.llegada;
+    campoProgreso.value = ruta.progreso;
+    campoTiempo.value = ruta.tiempo;
+    campoConductor.value = ruta.conductorId;
+    mensaje.textContent = "Editando registro de " + hijo.nombre + ".";
+  }
+
+  function eliminarRegistro(idHijo) {
+    const hijo = buscarPorId(datos.hijos, idHijo);
+    if (!hijo) return;
+    datos.hijos = datos.hijos.filter(function (item) {
+      return item.id !== idHijo;
+    });
+    datos.rutas = datos.rutas.filter(function (ruta) {
+      return ruta.estudianteId !== idHijo;
+    });
+    guardarDatos(datos);
+    limpiarFormulario("Registro eliminado.");
+    renderizarTabla();
   }
 
   formulario.addEventListener("submit", function (evento) {
     evento.preventDefault();
-    usuario.nombre = document.getElementById("editar-nombre").value.trim();
-    usuario.correo = document.getElementById("editar-correo").value.trim();
-    usuario.telefono = document.getElementById("editar-telefono").value.trim();
+    const idExistente = Number(campoId.value);
+    const nombre = campoNombre.value.trim();
+    const grado = campoGrado.value.trim();
+    if (!nombre || !grado) {
+      mensaje.textContent = "Nombre y grado son obligatorios.";
+      return;
+    }
+
+    if (idExistente) {
+      const hijo = buscarPorId(datos.hijos, idExistente);
+      const ruta = obtenerRutaPorHijo(hijo);
+      hijo.nombre = nombre;
+      hijo.inicial = nombre.charAt(0).toUpperCase();
+      hijo.grado = grado;
+      hijo.estado = campoEstado.value;
+      ruta.codigo = campoCodigo.value.trim();
+      ruta.colegio = campoColegio.value.trim();
+      ruta.recogida = campoRecogida.value.trim();
+      ruta.llegada = campoLlegada.value.trim();
+      ruta.progreso = Number(campoProgreso.value);
+      ruta.tiempo = Number(campoTiempo.value);
+      ruta.estado = campoEstado.value;
+      ruta.conductorId = Number(campoConductor.value);
+      mensaje.textContent = "Registro actualizado correctamente.";
+    } else {
+      const idHijo = Date.now();
+      const idRuta = idHijo + 1;
+      datos.hijos.push({
+        id: idHijo,
+        inicial: nombre.charAt(0).toUpperCase(),
+        nombre,
+        grado,
+        estado: campoEstado.value,
+        rutaId: idRuta,
+      });
+      datos.rutas.push({
+        id: idRuta,
+        codigo: campoCodigo.value.trim(),
+        estudianteId: idHijo,
+        conductorId: Number(campoConductor.value),
+        estado: campoEstado.value,
+        recogida: campoRecogida.value.trim(),
+        llegada: campoLlegada.value.trim(),
+        progreso: Number(campoProgreso.value),
+        tiempo: Number(campoTiempo.value),
+        colegio: campoColegio.value.trim(),
+      });
+      mensaje.textContent = "Registro creado correctamente.";
+    }
+
+    const mensajeFinal = mensaje.textContent;
     guardarDatos(datos);
-    renderizarPerfil();
+    renderizarTabla();
+    limpiarFormulario(mensajeFinal);
   });
 
-  renderizarPerfil();
+  buscador.addEventListener("input", renderizarTabla);
+  botonNuevo.addEventListener("click", limpiarFormulario);
+  botonReiniciar.addEventListener("click", function () {
+    datos = window.TransiKidsDatos.reiniciar();
+    renderizarOpcionesConductores();
+    limpiarFormulario("Datos restaurados.");
+    renderizarTabla();
+  });
+
+  renderizarOpcionesConductores();
+  limpiarFormulario();
+  renderizarTabla();
 }
 
 function iniciarVistaChat() {
