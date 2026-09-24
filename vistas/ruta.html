@@ -9,11 +9,13 @@
   </head>
   <body class="pagina-ruta">
     <header class="cabecera-ruta">
-      <h1>Ruta de Mateo Perez</h1>
+      <h1 id="titulo-ruta">Ruta de Mateo Perez</h1>
     </header>
 
     <main class="contenedor-ruta">
       <img class="imagen-mapa-ruta" src="../img/ruta.jpg" alt="Mapa de la ruta">
+
+      <section class="selector-rutas" id="selector-rutas"></section>
 
       <button class="boton-recentrar-ruta" type="button" aria-label="Recentrar mapa">
         <i class="fa-solid fa-crosshairs"></i>
@@ -23,15 +25,15 @@
         <div class="cabecera-tarjeta-ruta">
           <div class="estado-ruta">
             <span></span>
-            <strong>Ruta en curso</strong>
+            <strong id="estado-ruta-detalle">Ruta en curso</strong>
           </div>
           <p>Avance: <strong id="avance-ruta">10%</strong></p>
         </div>
 
-        <h2>Mateo Perez</h2>
+        <h2 id="estudiante-ruta">Mateo Perez</h2>
         <p class="colegio-ruta">
           <i class="fa-solid fa-graduation-cap"></i>
-          Inem
+          <span id="colegio-ruta">Inem</span>
         </p>
 
         <div class="tiempos-ruta">
@@ -41,7 +43,7 @@
           </div>
           <div>
             <span>Llegada aprox.</span>
-            <strong>07:17 AM</strong>
+            <strong id="llegada-ruta">07:17 AM</strong>
           </div>
         </div>
 
@@ -60,6 +62,7 @@
       <i class="fa-solid fa-robot"></i>
     </a>
 
+    <script src="../js/datos.js"></script>
     <script src="../js/funciones.js"></script>
   </body>
 </html>

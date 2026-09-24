@@ -18,15 +18,16 @@
 
       <p class="subtitulo-pagina">Monitorea a tus hijos en tiempo real</p>
 
-      <section class="lista-hijos">
-        <button class="tarjeta-hijo activa" id="tarjeta-mateo" type="button">
-          <span class="avatar-hijo-pequeno">M</span>
-          Mateo Perez
-        </button>
-        <button class="tarjeta-hijo" id="tarjeta-sofia" type="button">
-          <span class="avatar-hijo-pequeno">S</span>
-          Sofia Perez
-        </button>
+      <section class="panel-gestion-hijos">
+        <input id="buscar-hijo" type="search" placeholder="Buscar hijo">
+        <form id="formulario-hijo" class="formulario-hijo">
+          <input id="nombre-nuevo-hijo" type="text" placeholder="Nombre">
+          <input id="grado-nuevo-hijo" type="text" placeholder="Grado">
+          <button type="submit">Agregar</button>
+        </form>
+      </section>
+
+      <section class="lista-hijos" id="lista-hijos">
       </section>
 
       <section class="tarjeta-principal-hijo">
@@ -72,6 +73,7 @@
         <div class="acciones-hijo">
           <a class="boton-secundario" href="ruta.html">Ver ruta</a>
           <button class="boton-primario" id="boton-entrega" type="button">Entregar nino</button>
+          <button class="boton-peligro" id="boton-eliminar-hijo" type="button">Eliminar</button>
         </div>
 
         <article class="tarjeta-seguridad">
@@ -95,6 +97,7 @@
       <i class="fa-solid fa-robot"></i>
     </a>
 
+    <script src="../js/datos.js"></script>
     <script src="../js/funciones.js"></script>
   </body>
 </html>

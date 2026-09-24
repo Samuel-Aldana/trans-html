@@ -17,17 +17,17 @@
       </header>
 
       <section class="bienvenida-inicio">
-        <h2>Buenos dias, Brayan Teran <span>👋</span></h2>
-        <p>Todo esta funcionando correctamente</p>
+        <h2 id="saludo-inicio">Buenos dias, Brayan Teran <span>👋</span></h2>
+        <p id="resumen-inicio">Todo esta funcionando correctamente</p>
       </section>
 
       <section class="tarjeta-ruta-inicio">
         <div class="encabezado-ruta-inicio">
           <div>
-            <h3>Ruta TKS-001</h3>
-            <p><i class="fa-regular fa-user"></i> Conductor: Mario Jimenez</p>
+            <h3 id="codigo-ruta-inicio">Ruta TKS-001</h3>
+            <p><i class="fa-regular fa-user"></i> Conductor: <span id="conductor-ruta-inicio">Mario Jimenez</span></p>
           </div>
-          <span class="estado-ruta-inicio">EN CAMINO</span>
+          <span class="estado-ruta-inicio" id="estado-ruta-inicio">EN CAMINO</span>
         </div>
 
         <div class="contenedor-barra-progreso">
@@ -36,7 +36,7 @@
 
         <div class="datos-tiempo-inicio">
           <span>LLEGADA EST.</span>
-          <strong>07:17 AM</strong>
+          <strong id="llegada-ruta-inicio">07:17 AM</strong>
           <p class="contador-ruta-inicio">Faltan 01:13</p>
         </div>
       </section>
@@ -73,6 +73,14 @@
         </div>
         <i class="fa-solid fa-chevron-right"></i>
       </section>
+
+      <section class="seccion-historial-inicio">
+        <div class="encabezado-seccion-app">
+          <h2>Historial reciente</h2>
+          <input id="buscar-historial" type="search" placeholder="Buscar viaje">
+        </div>
+        <div class="lista-historial" id="lista-historial"></div>
+      </section>
     </main>
 
     <nav class="barra-navegacion">
@@ -98,6 +106,7 @@
       <i class="fa-solid fa-robot"></i>
     </a>
 
+    <script src="../js/datos.js"></script>
     <script src="../js/funciones.js"></script>
   </body>
 </html>

@@ -1399,6 +1399,153 @@ input {
   color: var(--blanco);
 }
 
+/* Datos dinamicos y acciones CRUD */
+
+.encabezado-seccion-app {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 12px;
+}
+
+.encabezado-seccion-app h2 {
+  margin: 0;
+  color: var(--texto-oscuro);
+  font-size: 18px;
+}
+
+.encabezado-seccion-app input,
+.panel-gestion-hijos input,
+.formulario-perfil input {
+  border: 1px solid #dbe4ef;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--blanco);
+  color: var(--texto-oscuro);
+  outline: none;
+}
+
+.lista-historial {
+  display: grid;
+  gap: 10px;
+}
+
+.item-historial {
+  border: 1px solid #edf2f7;
+  border-radius: 16px;
+  padding: 14px;
+  background: var(--blanco);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.item-historial strong,
+.item-historial span,
+.item-historial p {
+  display: block;
+}
+
+.item-historial span {
+  margin-top: 4px;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+.item-historial p {
+  margin: 8px 0 0;
+  color: var(--azul-principal);
+  font-weight: 800;
+}
+
+.mensaje-vacio {
+  width: 100%;
+  margin: 0;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 16px;
+  color: var(--texto-suave);
+  background: #f8fafc;
+  text-align: center;
+}
+
+.panel-gestion-hijos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.formulario-hijo {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+}
+
+.formulario-hijo button,
+.formulario-perfil button {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  background: var(--azul-principal);
+  color: var(--blanco);
+  font-weight: 800;
+}
+
+.boton-peligro {
+  flex: 1;
+  min-height: 50px;
+  border: 1px solid #e53935;
+  border-radius: 16px;
+  background: var(--blanco);
+  color: #e53935;
+  font-weight: 800;
+}
+
+.formulario-perfil {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  border: 1px solid #edf2f7;
+  border-radius: var(--radio-tarjeta);
+  padding: 18px;
+  background: var(--blanco);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.formulario-perfil h2 {
+  margin: 0;
+  color: var(--azul-principal);
+  font-size: 18px;
+}
+
+.selector-rutas {
+  position: absolute;
+  top: 82px;
+  left: 12px;
+  right: 12px;
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+}
+
+.selector-rutas button {
+  border: 1px solid #dbe4ef;
+  border-radius: 999px;
+  padding: 9px 14px;
+  background: var(--blanco);
+  color: var(--azul-principal);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.selector-rutas button.activa {
+  background: var(--azul-principal);
+  color: var(--blanco);
+}
+
 @media (max-width: 600px) {
   .contenedor-app {
     padding: 16px;
@@ -1424,5 +1571,14 @@ input {
   .boton-secundario,
   .boton-primario {
     width: 100%;
+  }
+
+  .formulario-hijo {
+    grid-template-columns: 1fr;
+  }
+
+  .encabezado-seccion-app {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

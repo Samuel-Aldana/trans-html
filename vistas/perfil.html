@@ -17,33 +17,21 @@
       </header>
 
       <section class="banner-perfil">
-        <span class="avatar-perfil">B</span>
-        <h2>Brayan Teran</h2>
-        <p>Padre / Acudiente</p>
+        <span class="avatar-perfil" id="avatar-perfil">B</span>
+        <h2 id="nombre-perfil">Brayan Teran</h2>
+        <p id="rol-perfil">Padre / Acudiente</p>
       </section>
 
-      <section class="lista-datos-perfil">
-        <article class="dato-perfil">
-          <span>Nombre</span>
-          <strong>Brayan Teran</strong>
-        </article>
-        <article class="dato-perfil">
-          <span>Correo electronico</span>
-          <strong>brayanteran@gmail.com</strong>
-        </article>
-        <article class="dato-perfil">
-          <span>Telefono</span>
-          <strong>300 000 0000</strong>
-        </article>
-        <article class="dato-perfil">
-          <span>Documento</span>
-          <strong>1.000.000.000</strong>
-        </article>
-        <article class="dato-perfil">
-          <span>Rol</span>
-          <strong>Padre / Acudiente</strong>
-        </article>
+      <section class="lista-datos-perfil" id="lista-datos-perfil">
       </section>
+
+      <form class="formulario-perfil" id="formulario-perfil">
+        <h2>Editar datos</h2>
+        <input id="editar-nombre" type="text" placeholder="Nombre">
+        <input id="editar-correo" type="email" placeholder="Correo">
+        <input id="editar-telefono" type="text" placeholder="Telefono">
+        <button type="submit">Guardar cambios</button>
+      </form>
 
       <a class="boton-cerrar-sesion" href="login.html">Cerrar sesion</a>
     </main>
@@ -59,6 +47,7 @@
       <i class="fa-solid fa-robot"></i>
     </a>
 
+    <script src="../js/datos.js"></script>
     <script src="../js/funciones.js"></script>
   </body>
 </html>
