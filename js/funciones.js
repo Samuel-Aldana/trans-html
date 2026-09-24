@@ -32,10 +32,109 @@ function obtenerHijo(datos, ruta) {
   return buscarPorId(datos.hijos, ruta.estudianteId) || datos.hijos[0];
 }
 
+function obtenerPadreActivo(datos) {
+  const usuarioId = Number(sessionStorage.getItem("usuarioTransikidsId")) || datos.usuarios[0].id;
+  return buscarPorId(datos.usuarios, usuarioId) || datos.usuarios[0];
+}
+
+function obtenerDatosPadre(datos) {
+  const padre = obtenerPadreActivo(datos);
+  const hijos = datos.hijos.filter(function (hijo) {
+    return Number(hijo.padreId) === Number(padre.id);
+  });
+  const rutas = datos.rutas.filter(function (ruta) {
+    return hijos.some(function (hijo) {
+      return Number(hijo.id) === Number(ruta.estudianteId);
+    });
+  });
+  const historial = datos.historial.filter(function (viaje) {
+    return Number(viaje.padreId) === Number(padre.id);
+  });
+
+  return { padre, hijos, rutas, historial };
+}
+
+function limitarNumero(numero, minimo, maximo) {
+  return Math.min(maximo, Math.max(minimo, Number(numero) || 0));
+}
+
+function obtenerEstadosTiempoRutas() {
+  try {
+    return JSON.parse(localStorage.getItem("estadoTiempoRutasTransikids")) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function guardarEstadosTiempoRutas(estados) {
+  localStorage.setItem("estadoTiempoRutasTransikids", JSON.stringify(estados));
+}
+
+function reiniciarEstadoTiempoRuta(idRuta) {
+  const estados = obtenerEstadosTiempoRutas();
+  delete estados[String(idRuta)];
+  guardarEstadosTiempoRutas(estados);
+}
+
+function obtenerFirmaTiempoRuta(ruta) {
+  return [ruta.id, ruta.estado, ruta.tiempo, ruta.progreso].join("|");
+}
+
+function formatearTiempoRuta(segundos) {
+  if (segundos <= 0) return "00:00";
+  return String(Math.floor(segundos / 60)).padStart(2, "0") + ":" + String(segundos % 60).padStart(2, "0");
+}
+
+function calcularEstadoRuta(ruta) {
+  if (!ruta) {
+    return { progreso: 0, tiempo: 0, estado: "SIN RUTA" };
+  }
+
+  const estados = obtenerEstadosTiempoRutas();
+  const clave = String(ruta.id);
+  const firma = obtenerFirmaTiempoRuta(ruta);
+  const tiempoBase = Math.max(0, Number(ruta.tiempo) || 0);
+  const progresoBase = limitarNumero(ruta.progreso, 0, 100);
+  const estadosFinales = ["FINALIZADA", "ENTREGADO", "EN CLASE"];
+
+  if (tiempoBase <= 0 || progresoBase >= 100 || estadosFinales.includes(ruta.estado)) {
+    delete estados[clave];
+    guardarEstadosTiempoRutas(estados);
+    return { progreso: 100, tiempo: 0, estado: ruta.estado };
+  }
+
+  if (!estados[clave] || estados[clave].firma !== firma) {
+    estados[clave] = {
+      firma,
+      inicio: Date.now(),
+      tiempoBase,
+      progresoBase,
+    };
+    guardarEstadosTiempoRutas(estados);
+  }
+
+  const estadoGuardado = estados[clave];
+  const segundosPasados = Math.max(0, Math.floor((Date.now() - estadoGuardado.inicio) / 1000));
+  const tiempoRestante = Math.max(0, estadoGuardado.tiempoBase - segundosPasados);
+  const proporcion = estadoGuardado.tiempoBase > 0 ? segundosPasados / estadoGuardado.tiempoBase : 1;
+  const progreso = limitarNumero(
+    estadoGuardado.progresoBase + (100 - estadoGuardado.progresoBase) * proporcion,
+    estadoGuardado.progresoBase,
+    100
+  );
+
+  return {
+    progreso: tiempoRestante <= 0 ? 100 : Math.round(progreso),
+    tiempo: tiempoRestante,
+    estado: tiempoRestante <= 0 ? "FINALIZADA" : ruta.estado,
+  };
+}
+
 function iniciarCierreSesion() {
   document.querySelectorAll("[data-cerrar-sesion]").forEach(function (enlace) {
     enlace.addEventListener("click", function () {
       sessionStorage.removeItem("rolTransikids");
+      sessionStorage.removeItem("usuarioTransikidsId");
     });
   });
 }
@@ -86,6 +185,15 @@ function iniciarFormularioLogin() {
     const usuario = cedula.value.trim();
     const clave = contrasena.value.trim();
     const esAdmin = usuario === "12345" && clave === "contraseña";
+    const datos = obtenerDatos();
+    const padre = datos.usuarios.find(function (item) {
+      return item.usuario === usuario && item.contrasena === clave;
+    });
+
+    if (!esAdmin && !padre) {
+      mensaje.textContent = "Usuario o contrasena incorrectos.";
+      return;
+    }
 
     if (recordarme.checked) {
       localStorage.setItem("cedulaTransikids", usuario);
@@ -95,6 +203,11 @@ function iniciarFormularioLogin() {
 
     localStorage.removeItem("rolTransikids");
     sessionStorage.setItem("rolTransikids", esAdmin ? "admin" : "padre");
+    if (padre) {
+      sessionStorage.setItem("usuarioTransikidsId", padre.id);
+    } else {
+      sessionStorage.removeItem("usuarioTransikidsId");
+    }
     mensaje.textContent = esAdmin ? "Ingreso administrador. Redirigiendo..." : "Ingreso correcto. Redirigiendo...";
 
     setTimeout(function () {
@@ -140,13 +253,21 @@ function iniciarFormularioRegistro() {
     }
 
     const datos = obtenerDatos();
-    datos.usuario.nombre = nombre.value.trim();
-    datos.usuario.correo = correo.value.trim();
-    datos.usuario.telefono = telefono.value.trim();
+    const idUsuario = Date.now();
+    datos.usuarios.push({
+      id: idUsuario,
+      usuario: telefono.value.trim(),
+      contrasena: contrasena.value.trim(),
+      nombre: nombre.value.trim(),
+      correo: correo.value.trim(),
+      telefono: telefono.value.trim(),
+      documento: telefono.value.trim(),
+      rol: "Padre / Acudiente",
+    });
     guardarDatos(datos);
 
     mensaje.style.color = "#0875d1";
-    mensaje.textContent = "Cuenta creada correctamente.";
+    mensaje.textContent = "Cuenta creada correctamente. Usa tu telefono como usuario.";
 
     setTimeout(function () {
       window.location.href = "login.html";
@@ -160,28 +281,44 @@ function iniciarVistaInicio() {
   if (!saludo || !codigoRuta) return;
 
   const datos = obtenerDatos();
-  const ruta = datos.rutas.find(function (item) {
+  const datosPadre = obtenerDatosPadre(datos);
+  const ruta = datosPadre.rutas.find(function (item) {
     return item.estado !== "FINALIZADA";
-  }) || datos.rutas[0];
+  }) || datosPadre.rutas[0];
+
+  if (!ruta) {
+    saludo.textContent = "Buenos dias, " + datosPadre.padre.nombre;
+    document.getElementById("resumen-inicio").textContent = "No tienes hijos vinculados todavia.";
+    codigoRuta.textContent = "Sin ruta asignada";
+    document.getElementById("conductor-ruta-inicio").textContent = "Pendiente";
+    document.getElementById("estado-ruta-inicio").textContent = "SIN RUTA";
+    document.getElementById("llegada-ruta-inicio").textContent = "--";
+    document.querySelector(".barra-progreso-inicio").style.width = "0%";
+    document.querySelector(".texto-alerta-inicio").textContent = "Administracion debe vincular un estudiante a tu cuenta.";
+    renderizarHistorialInicio([]);
+    return;
+  }
+
   const hijo = obtenerHijo(datos, ruta);
   const conductor = obtenerConductor(datos, ruta);
+  const estadoActual = calcularEstadoRuta(ruta);
 
-  saludo.innerHTML = "Buenos dias, " + datos.usuario.nombre + " <span>👋</span>";
+  saludo.innerHTML = "Buenos dias, " + datosPadre.padre.nombre + " <span>👋</span>";
   document.getElementById("resumen-inicio").textContent =
-    datos.rutas.length + " rutas registradas y " + datos.hijos.length + " hijos vinculados";
+    datosPadre.rutas.length + " ruta registrada y " + datosPadre.hijos.length + " hijo vinculado";
   codigoRuta.textContent = "Ruta " + ruta.codigo;
   document.getElementById("conductor-ruta-inicio").textContent = conductor.nombre;
-  document.getElementById("estado-ruta-inicio").textContent = ruta.estado;
+  document.getElementById("estado-ruta-inicio").textContent = estadoActual.estado;
   document.getElementById("llegada-ruta-inicio").textContent = ruta.llegada;
-  document.querySelector(".barra-progreso-inicio").style.width = ruta.progreso + "%";
+  document.querySelector(".barra-progreso-inicio").style.width = estadoActual.progreso + "%";
   document.querySelector(".texto-alerta-inicio").textContent = "Llegada de " + hijo.nombre + " a la institucion";
 
   iniciarContadorInicio(ruta);
-  renderizarHistorialInicio(datos.historial);
+  renderizarHistorialInicio(datosPadre.historial);
 
   document.getElementById("buscar-historial").addEventListener("input", function (evento) {
     const texto = evento.target.value.toLowerCase();
-    const filtrados = datos.historial.filter(function (viaje) {
+    const filtrados = datosPadre.historial.filter(function (viaje) {
       return (
         viaje.estudiante.toLowerCase().includes(texto) ||
         viaje.ruta.toLowerCase().includes(texto) ||
@@ -194,26 +331,16 @@ function iniciarVistaInicio() {
 
 function iniciarContadorInicio(ruta) {
   const contador = document.querySelector(".contador-ruta-inicio");
-  let segundos = ruta.tiempo;
-  let progreso = ruta.progreso;
 
-  const intervalo = setInterval(function () {
-    if (segundos <= 0) {
-      clearInterval(intervalo);
-      contador.textContent = "Ruta finalizada";
-      document.getElementById("estado-ruta-inicio").textContent = "LLEGO";
-      return;
-    }
+  function actualizarContador() {
+    const estadoActual = calcularEstadoRuta(ruta);
+    document.querySelector(".barra-progreso-inicio").style.width = estadoActual.progreso + "%";
+    document.getElementById("estado-ruta-inicio").textContent = estadoActual.estado;
+    contador.textContent = estadoActual.tiempo > 0 ? "Faltan " + formatearTiempoRuta(estadoActual.tiempo) : "Ruta finalizada";
+  }
 
-    segundos--;
-    progreso = Math.min(100, progreso + 0.5);
-    document.querySelector(".barra-progreso-inicio").style.width = progreso + "%";
-    contador.textContent =
-      "Faltan " +
-      String(Math.floor(segundos / 60)).padStart(2, "0") +
-      ":" +
-      String(segundos % 60).padStart(2, "0");
-  }, 1000);
+  actualizarContador();
+  setInterval(actualizarContador, 1000);
 }
 
 function renderizarHistorialInicio(historial) {
@@ -247,12 +374,13 @@ function iniciarVistaHijos() {
   if (!lista) return;
 
   let datos = obtenerDatos();
-  let hijoSeleccionadoId = datos.hijos[0] ? datos.hijos[0].id : null;
+  let datosPadre = obtenerDatosPadre(datos);
+  let hijoSeleccionadoId = datosPadre.hijos[0] ? datosPadre.hijos[0].id : null;
   const buscador = document.getElementById("buscar-hijo");
 
   function renderizarLista() {
     const texto = buscador.value.toLowerCase();
-    const hijosFiltrados = datos.hijos.filter(function (hijo) {
+    const hijosFiltrados = datosPadre.hijos.filter(function (hijo) {
       return hijo.nombre.toLowerCase().includes(texto) || hijo.grado.toLowerCase().includes(texto);
     });
 
@@ -289,7 +417,7 @@ function iniciarVistaHijos() {
       });
     });
 
-    renderizarDetalle(buscarPorId(datos.hijos, hijoSeleccionadoId));
+    renderizarDetalle(buscarPorId(datosPadre.hijos, hijoSeleccionadoId));
   }
 
   function renderizarDetalle(hijo) {
@@ -302,25 +430,29 @@ function iniciarVistaHijos() {
 
     const ruta = buscarPorId(datos.rutas, hijo.rutaId) || datos.rutas[0];
     const conductor = obtenerConductor(datos, ruta);
+    const estadoActual = calcularEstadoRuta(ruta);
     document.getElementById("avatar-hijo").textContent = hijo.inicial;
     document.getElementById("nombre-hijo").textContent = hijo.nombre;
     document.getElementById("grado-hijo").textContent = hijo.grado;
-    document.getElementById("estado-hijo").textContent = hijo.estado;
+    document.getElementById("estado-hijo").textContent = estadoActual.estado;
     document.getElementById("hora-hijo").textContent = ruta.recogida;
     document.getElementById("contador-hijo").textContent =
-      ruta.tiempo > 0
-        ? "0" + Math.floor(ruta.tiempo / 60) + ":" + String(ruta.tiempo % 60).padStart(2, "0")
-        : "Finalizado";
+      estadoActual.tiempo > 0 ? formatearTiempoRuta(estadoActual.tiempo) : "Finalizado";
     document.getElementById("ruta-hijo").textContent = "Bus " + ruta.codigo;
     document.getElementById("conductor-hijo").textContent = conductor.nombre;
-    document.getElementById("barra-hijo").style.width = ruta.progreso + "%";
+    document.getElementById("barra-hijo").style.width = estadoActual.progreso + "%";
     document.getElementById("texto-llegada-hijo").textContent =
-      hijo.estado === "FINALIZADA" ? hijo.nombre + " ya llego correctamente" : "Llegada de " + hijo.nombre + " a la institucion";
+      estadoActual.tiempo <= 0 ? hijo.nombre + " ya llego correctamente" : "Llegada de " + hijo.nombre + " a la institucion";
   }
 
   buscador.addEventListener("input", renderizarLista);
 
   renderizarLista();
+  setInterval(function () {
+    if (hijoSeleccionadoId) {
+      renderizarDetalle(buscarPorId(datosPadre.hijos, hijoSeleccionadoId));
+    }
+  }, 1000);
 }
 
 function iniciarVistaRuta() {
@@ -328,10 +460,20 @@ function iniciarVistaRuta() {
   if (!selector) return;
 
   const datos = obtenerDatos();
-  let rutaSeleccionadaId = Number(localStorage.getItem("rutaSeleccionadaId")) || datos.rutas[0].id;
+  const datosPadre = obtenerDatosPadre(datos);
+  let rutaSeleccionadaId = Number(localStorage.getItem("rutaSeleccionadaId")) || (datosPadre.rutas[0] ? datosPadre.rutas[0].id : 0);
+
+  if (!buscarPorId(datosPadre.rutas, rutaSeleccionadaId) && datosPadre.rutas[0]) {
+    rutaSeleccionadaId = datosPadre.rutas[0].id;
+  }
 
   function renderizarSelector() {
-    selector.innerHTML = datos.rutas
+    if (!datosPadre.rutas.length) {
+      selector.innerHTML = '<p class="mensaje-vacio">No hay rutas asignadas.</p>';
+      return;
+    }
+
+    selector.innerHTML = datosPadre.rutas
       .map(function (ruta) {
         return (
           '<button class="' +
@@ -356,27 +498,36 @@ function iniciarVistaRuta() {
   }
 
   function renderizarRuta() {
-    const ruta = buscarPorId(datos.rutas, rutaSeleccionadaId) || datos.rutas[0];
+    const ruta = buscarPorId(datosPadre.rutas, rutaSeleccionadaId) || datosPadre.rutas[0];
+    if (!ruta) {
+      document.getElementById("titulo-ruta").textContent = "Sin ruta asignada";
+      document.getElementById("avance-ruta").textContent = "0%";
+      document.getElementById("estado-ruta-detalle").textContent = "SIN RUTA";
+      document.getElementById("estudiante-ruta").textContent = "Pendiente";
+      document.getElementById("colegio-ruta").textContent = "Administracion";
+      document.getElementById("llegada-ruta").textContent = "--";
+      return;
+    }
     const hijo = obtenerHijo(datos, ruta);
-    document.getElementById("avance-ruta").textContent = ruta.progreso + "%";
+    const estadoActual = calcularEstadoRuta(ruta);
+    document.getElementById("avance-ruta").textContent = estadoActual.progreso + "%";
     document.getElementById("titulo-ruta").textContent = "Ruta de " + hijo.nombre;
-    document.querySelector(".tiempo-restante-ruta").textContent =
-      ruta.tiempo > 0
-        ? String(Math.floor(ruta.tiempo / 60)).padStart(2, "0") + ":" + String(ruta.tiempo % 60).padStart(2, "0")
-        : "00:00";
-    document.getElementById("estado-ruta-detalle").textContent = ruta.estado;
+    document.querySelector(".tiempo-restante-ruta").textContent = formatearTiempoRuta(estadoActual.tiempo);
+    document.getElementById("estado-ruta-detalle").textContent = estadoActual.estado;
     document.getElementById("estudiante-ruta").textContent = hijo.nombre;
     document.getElementById("colegio-ruta").textContent = ruta.colegio;
     document.getElementById("llegada-ruta").textContent = ruta.llegada;
   }
 
   document.querySelector(".boton-detalles-ruta").addEventListener("click", function () {
-    const ruta = buscarPorId(datos.rutas, rutaSeleccionadaId) || datos.rutas[0];
+    const ruta = buscarPorId(datosPadre.rutas, rutaSeleccionadaId) || datosPadre.rutas[0];
+    if (!ruta) return;
     alert("Ruta " + ruta.codigo + " - Estado: " + ruta.estado);
   });
 
   renderizarSelector();
   renderizarRuta();
+  setInterval(renderizarRuta, 1000);
 }
 
 function iniciarVistaPerfil() {
@@ -384,7 +535,7 @@ function iniciarVistaPerfil() {
   if (!lista) return;
 
   const datos = obtenerDatos();
-  const usuario = datos.usuario;
+  const usuario = obtenerPadreActivo(datos);
 
   function renderizarPerfil() {
     document.getElementById("avatar-perfil").textContent = usuario.nombre.charAt(0).toUpperCase();
@@ -425,6 +576,7 @@ function iniciarPanelAdmin() {
   const campoId = document.getElementById("admin-id-hijo");
   const campoNombre = document.getElementById("admin-nombre");
   const campoGrado = document.getElementById("admin-grado");
+  const campoPadre = document.getElementById("admin-padre");
   const campoEstado = document.getElementById("admin-estado");
   const campoCodigo = document.getElementById("admin-codigo-ruta");
   const campoColegio = document.getElementById("admin-colegio");
@@ -442,10 +594,21 @@ function iniciarPanelAdmin() {
       .join("");
   }
 
+  function renderizarOpcionesPadres() {
+    campoPadre.innerHTML = datos.usuarios
+      .map(function (usuario) {
+        return '<option value="' + usuario.id + '">' + escaparHtml(usuario.nombre) + "</option>";
+      })
+      .join("");
+  }
+
   function limpiarFormulario(textoMensaje) {
     campoId.value = "";
     formulario.reset();
     campoEstado.value = "PENDIENTE";
+    if (datos.usuarios[0]) {
+      campoPadre.value = datos.usuarios[0].id;
+    }
     campoCodigo.value = "TKS-" + String(datos.rutas.length + 1).padStart(3, "0");
     campoColegio.value = "Inem";
     campoRecogida.value = "7:10 AM";
@@ -466,19 +629,37 @@ function iniciarPanelAdmin() {
     const texto = buscador.value.toLowerCase();
     const hijosFiltrados = datos.hijos.filter(function (hijo) {
       const ruta = obtenerRutaPorHijo(hijo);
+      const padre = buscarPorId(datos.usuarios, hijo.padreId) || datos.usuarios[0];
       return (
         hijo.nombre.toLowerCase().includes(texto) ||
         hijo.grado.toLowerCase().includes(texto) ||
         hijo.estado.toLowerCase().includes(texto) ||
+        padre.nombre.toLowerCase().includes(texto) ||
         ruta.codigo.toLowerCase().includes(texto)
       );
     });
 
+    const rutasEnCamino = datos.rutas.filter(function (ruta) {
+      return calcularEstadoRuta(ruta).estado === "EN CAMINO";
+    });
+    const rutasFinalizadas = datos.rutas.filter(function (ruta) {
+      const estadoRuta = calcularEstadoRuta(ruta).estado;
+      return estadoRuta === "FINALIZADA" || estadoRuta === "EN CLASE" || estadoRuta === "ENTREGADO";
+    });
+    const porcentajeEnCamino = datos.rutas.length ? Math.round((rutasEnCamino.length / datos.rutas.length) * 100) : 0;
+    const porcentajeFinalizadas = datos.rutas.length ? Math.round((rutasFinalizadas.length / datos.rutas.length) * 100) : 0;
+
+    document.getElementById("total-padres-admin").textContent = datos.usuarios.length;
     document.getElementById("total-hijos-admin").textContent = datos.hijos.length;
     document.getElementById("total-rutas-admin").textContent = datos.rutas.length;
-    document.getElementById("total-en-camino-admin").textContent = datos.rutas.filter(function (ruta) {
-      return ruta.estado === "EN CAMINO";
-    }).length;
+    document.getElementById("total-en-camino-admin").textContent = rutasEnCamino.length;
+    document.getElementById("total-finalizadas-admin").textContent = rutasFinalizadas.length;
+    document.getElementById("barra-en-camino-admin").style.width = porcentajeEnCamino + "%";
+    document.getElementById("barra-finalizadas-admin").style.width = porcentajeFinalizadas + "%";
+    document.getElementById("alerta-admin").textContent =
+      rutasEnCamino.length > 0
+        ? "Hay " + rutasEnCamino.length + " ruta en seguimiento activo."
+        : "No hay rutas en camino en este momento.";
 
     if (!hijosFiltrados.length) {
       tabla.innerHTML = '<p class="mensaje-vacio">No hay registros para mostrar.</p>';
@@ -489,12 +670,15 @@ function iniciarPanelAdmin() {
       .map(function (hijo) {
         const ruta = obtenerRutaPorHijo(hijo);
         const conductor = obtenerConductor(datos, ruta);
+        const padre = buscarPorId(datos.usuarios, hijo.padreId) || datos.usuarios[0];
         return (
           '<article class="fila-admin">' +
           '<div><strong>' +
           escaparHtml(hijo.nombre) +
           "</strong><span>" +
           escaparHtml(hijo.grado) +
+          "</span><span>Acudiente: " +
+          escaparHtml(padre.nombre) +
           "</span></div>" +
           '<div><strong>' +
           escaparHtml(ruta.codigo) +
@@ -538,6 +722,7 @@ function iniciarPanelAdmin() {
     campoId.value = hijo.id;
     campoNombre.value = hijo.nombre;
     campoGrado.value = hijo.grado;
+    campoPadre.value = hijo.padreId;
     campoEstado.value = hijo.estado;
     campoCodigo.value = ruta.codigo;
     campoColegio.value = ruta.colegio;
@@ -552,12 +737,19 @@ function iniciarPanelAdmin() {
   function eliminarRegistro(idHijo) {
     const hijo = buscarPorId(datos.hijos, idHijo);
     if (!hijo) return;
+    const rutaEliminada = buscarPorId(datos.rutas, hijo.rutaId);
     datos.hijos = datos.hijos.filter(function (item) {
       return item.id !== idHijo;
     });
     datos.rutas = datos.rutas.filter(function (ruta) {
       return ruta.estudianteId !== idHijo;
     });
+    datos.historial = datos.historial.filter(function (viaje) {
+      return viaje.estudiante !== hijo.nombre;
+    });
+    if (rutaEliminada) {
+      reiniciarEstadoTiempoRuta(rutaEliminada.id);
+    }
     guardarDatos(datos);
     limpiarFormulario("Registro eliminado.");
     renderizarTabla();
@@ -576,9 +768,11 @@ function iniciarPanelAdmin() {
     if (idExistente) {
       const hijo = buscarPorId(datos.hijos, idExistente);
       const ruta = obtenerRutaPorHijo(hijo);
+      const nombreAnterior = hijo.nombre;
       hijo.nombre = nombre;
       hijo.inicial = nombre.charAt(0).toUpperCase();
       hijo.grado = grado;
+      hijo.padreId = Number(campoPadre.value);
       hijo.estado = campoEstado.value;
       ruta.codigo = campoCodigo.value.trim();
       ruta.colegio = campoColegio.value.trim();
@@ -588,12 +782,21 @@ function iniciarPanelAdmin() {
       ruta.tiempo = Number(campoTiempo.value);
       ruta.estado = campoEstado.value;
       ruta.conductorId = Number(campoConductor.value);
+      reiniciarEstadoTiempoRuta(ruta.id);
+      datos.historial.forEach(function (viaje) {
+        if (viaje.estudiante === nombreAnterior) {
+          viaje.estudiante = nombre;
+          viaje.padreId = hijo.padreId;
+          viaje.ruta = ruta.codigo;
+        }
+      });
       mensaje.textContent = "Registro actualizado correctamente.";
     } else {
       const idHijo = Date.now();
       const idRuta = idHijo + 1;
       datos.hijos.push({
         id: idHijo,
+        padreId: Number(campoPadre.value),
         inicial: nombre.charAt(0).toUpperCase(),
         nombre,
         grado,
@@ -612,6 +815,7 @@ function iniciarPanelAdmin() {
         tiempo: Number(campoTiempo.value),
         colegio: campoColegio.value.trim(),
       });
+      reiniciarEstadoTiempoRuta(idRuta);
       mensaje.textContent = "Registro creado correctamente.";
     }
 
@@ -625,12 +829,15 @@ function iniciarPanelAdmin() {
   botonNuevo.addEventListener("click", limpiarFormulario);
   botonReiniciar.addEventListener("click", function () {
     datos = window.TransiKidsDatos.reiniciar();
+    localStorage.removeItem("estadoTiempoRutasTransikids");
     renderizarOpcionesConductores();
+    renderizarOpcionesPadres();
     limpiarFormulario("Datos restaurados.");
     renderizarTabla();
   });
 
   renderizarOpcionesConductores();
+  renderizarOpcionesPadres();
   limpiarFormulario();
   renderizarTabla();
 }
@@ -645,9 +852,34 @@ function iniciarVistaChat() {
   const panelPreguntas = document.getElementById("panel-preguntas");
   if (!formulario || !entrada || !mensajes) return;
 
+  const datos = obtenerDatos();
+  const datosPadre = obtenerDatosPadre(datos);
+  const rutaPrincipal = datosPadre.rutas[0] || datos.rutas[0];
+  const estadoRutaPrincipal = calcularEstadoRuta(rutaPrincipal);
+  const conductorPrincipal = rutaPrincipal ? obtenerConductor(datos, rutaPrincipal) : datos.conductores[0];
+  const primerMensaje = mensajes.querySelector(".mensaje-bot p");
+  if (primerMensaje) {
+    primerMensaje.textContent =
+      "Hola, " + datosPadre.padre.nombre + ". Soy tu asistente de TransiKids. En que puedo ayudarte hoy?";
+  }
+
   const respuestas = [
-    { claves: ["hora", "llega", "llegada", "tiempo"], texto: "La ruta TKS-001 tiene llegada estimada a las 07:17 AM." },
-    { claves: ["conductor", "mario", "chofer"], texto: "El conductor asignado es Mario Jimenez." },
+    {
+      claves: ["hora", "llega", "llegada", "tiempo"],
+      texto: rutaPrincipal
+        ? "La ruta " +
+          rutaPrincipal.codigo +
+          " tiene llegada estimada a las " +
+          rutaPrincipal.llegada +
+          " y tiempo restante de " +
+          formatearTiempoRuta(estadoRutaPrincipal.tiempo) +
+          "."
+        : "Aun no tienes ruta asignada.",
+    },
+    {
+      claves: ["conductor", "mario", "chofer"],
+      texto: conductorPrincipal ? "El conductor asignado es " + conductorPrincipal.nombre + "." : "Aun no hay conductor asignado.",
+    },
     { claves: ["ubicacion", "ubicación", "mapa", "ruta"], texto: "Puedes consultar la ubicacion en la vista Ruta." },
     { claves: ["emergencia", "urgente", "llamo"], texto: "En emergencia comunicate con la central: (+57) 601 555 0199." },
   ];

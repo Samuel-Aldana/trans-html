@@ -18,6 +18,10 @@
 
       <section class="resumen-admin">
         <article>
+          <span>Padres</span>
+          <strong id="total-padres-admin">0</strong>
+        </article>
+        <article>
           <span>Hijos</span>
           <strong id="total-hijos-admin">0</strong>
         </article>
@@ -28,6 +32,31 @@
         <article>
           <span>En camino</span>
           <strong id="total-en-camino-admin">0</strong>
+        </article>
+        <article>
+          <span>Finalizadas</span>
+          <strong id="total-finalizadas-admin">0</strong>
+        </article>
+      </section>
+
+      <section class="panel-analitica-admin">
+        <article class="alerta-admin">
+          <span><i class="fa-solid fa-bell"></i></span>
+          <div>
+            <h2>Alertas administrativas</h2>
+            <p id="alerta-admin">Revisa rutas en camino, asistencia y vinculacion de estudiantes.</p>
+          </div>
+        </article>
+        <article class="grafico-admin">
+          <h2>Seguimiento de rutas</h2>
+          <div class="barra-admin-dato">
+            <span>En camino</span>
+            <strong id="barra-en-camino-admin"></strong>
+          </div>
+          <div class="barra-admin-dato">
+            <span>Finalizadas</span>
+            <strong id="barra-finalizadas-admin"></strong>
+          </div>
         </article>
       </section>
 
@@ -44,6 +73,11 @@
           <label>
             Grado
             <input id="admin-grado" type="text" placeholder="Ej: 3 primaria">
+          </label>
+
+          <label>
+            Padre / Acudiente
+            <select id="admin-padre"></select>
           </label>
 
           <label>

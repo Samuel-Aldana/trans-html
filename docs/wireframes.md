@@ -28,8 +28,10 @@ Estos wireframes describen la estructura base de cada pantalla. El detalle visua
 
 ```text
 [Titulo panel admin]
-[Resumen: hijos, rutas, rutas en camino]
-[Formulario crear/editar estudiante y ruta]
+[Resumen: padres, hijos, rutas, rutas en camino, finalizadas]
+[Alertas administrativas]
+[Seguimiento visual de rutas]
+[Formulario crear/editar estudiante, padre y ruta]
 [Buscador de registros]
 [Lista de estudiantes con editar/eliminar]
 [Boton restaurar datos de prueba]

@@ -14,6 +14,12 @@ TransiKids es un prototipo web para que un acudiente pueda consultar el estado d
 4. El chatbot esta disponible en las cuatro vistas principales mediante el boton flotante.
 5. El administrador entra desde `login.html` con usuario `12345` y contrasena `contraseña`, y se redirige a `admin.html`.
 
+## Usuarios de prueba
+
+- Padre 1: usuario `1001`, contrasena `familia123`. Ve a Mateo Perez.
+- Padre 2: usuario `1002`, contrasena `ruta456`. Ve a Sofia Rojas.
+- Admin: usuario `12345`, contrasena `contraseña`. Ve y gestiona todos los registros.
+
 ## Organizacion
 
 - Archivos `.html` en la raiz: pantallas del prototipo.
@@ -26,8 +32,8 @@ TransiKids es un prototipo web para que un acudiente pueda consultar el estado d
 
 Los datos salen de arreglos y objetos definidos en `js/datos.js`:
 
-- Acudiente: nombre, correo, telefono, documento y rol.
-- Hijos: cinco estudiantes con grado, estado y ruta asignada.
+- Usuarios padres: credenciales, nombre, correo, telefono, documento y rol.
+- Hijos: dos estudiantes, uno vinculado a cada padre.
 - Rutas: codigo, conductor, colegio, hora de recogida, llegada, progreso y tiempo restante.
 - Conductores: nombre, telefono y licencia.
 - Historial: viajes recientes para filtrar desde la vista de inicio.
@@ -37,9 +43,11 @@ Los datos salen de arreglos y objetos definidos en `js/datos.js`:
 
 - Busqueda de historial por estudiante, ruta, estado o fecha.
 - Busqueda de hijos por nombre, grado o estado.
-- Acceso de padre a vistas de consulta.
+- Acceso de padre a vistas de consulta con datos filtrados por su usuario.
 - Acceso de administrador con usuario `12345` y contrasena `contraseña`.
+- Panel admin inspirado en una plantilla educativa: KPIs, alertas, seguimiento visual de rutas y tabla filtrable.
 - Agregar, editar y eliminar estudiantes/rutas desde `admin.html`.
+- Asignar cada estudiante a un padre/acudiente desde el panel admin.
 - Restaurar datos de prueba desde el panel admin.
 - Cambiar la ruta visible desde `Ruta`.
 - Ver datos del acudiente en `Perfil` sin modificarlos.
